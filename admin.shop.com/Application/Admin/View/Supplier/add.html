@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1><a href="{:U('index')}">商品供货商</a></h1>
+    <div>
+        <form method="post" action="{:U()}" enctype="multipart/form-data" >
+            <table cellspacing="1" cellpadding="3">
+                <tr>
+                    <td class="label">供货商名称</td>
+                    <td>
+                        <input type="text" name="name" maxlength="60" value="{$row.name}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">供货商描述</td>
+                    <td>
+                        <textarea  name="intro" cols="40" rows="4"  >{$row.intro}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">排序</td>
+                    <td>
+                        <input type="text" name="sort" maxlength="40" size="15" value="{$row.sort|default=50}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">是否显示</td>
+                    <td>
+                        <input type="radio" name="status" value="1" class="status"/> 是
+                        <input type="radio" name="status" value="0" class="status" /> 否(当供货商下还没有商品的时候，首页及分类页的供货商区将不会显示该供货商。)
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center"><br />
+                        <input type="hidden" name="id" value="{$row.id}" />
+                        <input type="submit" class="button" value=" 确定 " />
+                        <input type="reset" class="button" value=" 重置 " />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <js href='__JS__/jquery.min.js'/>
+    <script type='text/javascript'>
+        $(function(){
+            //回显供应商状态
+            $('.status').val([{$row.status|default=1}]);
+        });
+    </script>
+</body>
+</html>
