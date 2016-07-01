@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <css href='__UPLOADIFY__/common.css'/>
+</head>
+<body>
+<div style="margin-left: 30px;width: 500px">
+    <h1><a href="{:U('index')}">品牌列表</a></h1>
+    <form action="{:U()}" method="post" enctype="multipart/form-data">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">品牌名：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="name" class="form-control" value="{$row.name}">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">品牌LOGO：</label>
+                <div class="col-sm-9">
+                    <input type="hidden" name="logo" id="logo" value="{$row.logo}"/>
+                    <input type="file" id="logo_file" class="form-control">
+                    <img src="{$row.logo}" id="logo_preview" width="100"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">品牌描述：</label>
+                <div class="col-sm-9">
+                    <textarea name="intro" class="form-control" cols="42" rows="4">{$row.intro}</textarea>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">排序：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="sort" class="form-control" value="{$row.sort|default=50}">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">是否显示：</label>
+                <div class="col-sm-9">
+                    <input type="radio" name="status" value="1" class="status"/> 是
+                    <input type="radio" name="status" value="0" class="status" /> 否
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="hidden" name="id" value="{$row.id}" />
+                <input type="submit" value="提交">
+            </div>
+        </div>
+    </form>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<js href='__UPLOADIFY__/jquery.uploadify.min.js'/>
+<js href='__LAYER__/layer.js'/>
+<script type='text/javascript'>
+    $(function(){
+        //回显供应商状态
+        $('.status').val([{$row.status|default=1}]);
+
+        //使用uploadify初始化logo文件框
+        $options = {
+            swf:'__UPLOADIFY__/uploadify.swf',
+            uploader:'{:U("Upload/uploadImg")}',
+            buttonText:' 选择文件 ',
+            fileObjName:'file_data',
+            /**
+             * onUploadSuccess每一个文件上传成功时触发该事件。
+             * file
+             上传成功的文件对象
+
+             data
+             上传数据处理文件（uploadify.php）输出的值
+
+             response
+             服务器端响应。上传成功为true，上传失败为false
+             * @param file_item
+             * @param response
+             */
+            onUploadSuccess:function(file_item,response){
+                //根据返回的status来判定是否成功
+                var data = $.parseJSON(response);//获取服务器返回json
+                if(data.status){
+                    $('#logo').val(data.file_url);
+                    $('#logo_preview').attr('src',data.file_url);
+                    layer.alert(data.msg, {icon: 6});//引入layer
+                }else{
+                    layer.alert(data.msg, {icon: 5});//引入layer
+                }
+            },
+        };
+        $('#logo_file').uploadify($options);
+
+    });
+
+</script>
+</body>
+</html>

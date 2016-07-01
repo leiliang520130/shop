@@ -7,6 +7,11 @@ return array(
         '__CSS__'=> BASE_URL . '/Public/Admin/css',
         '__JS__'=> BASE_URL . '/Public/Admin/js',
         '__IMG__'=> BASE_URL . '/Public/Admin/images',
+        '__UPLOADIFY__'=> BASE_URL . '/Public/Admin/ext/uploadify',
+        '__LAYER__'=> BASE_URL . '/Public/Admin/ext/layer',
+        '__ZTREE__'=> BASE_URL . '/Public/Admin/ext/ztree',
+        '__TREEGRID__'=> BASE_URL . '/Public/Admin/ext/treegrid',
+        '__UEDITOR__'=> BASE_URL . '/Public/Admin/ext/ueditor',
     ],
 
     /* 数据库设置 */
@@ -25,5 +30,29 @@ return array(
     'DB_RW_SEPARATE'        =>  false,       // 数据库读写是否分离 主从式有效
     'DB_MASTER_NUM'         =>  1, // 读写分离后 主服务器数量
     'DB_SLAVE_NO'           =>  '', // 指定从服务器序号
+
+    //分页相关的配置
+    'PAGE_SETTING'=>[
+        'PAGE_SIZE'=>2,
+        'PAGE_THEME'=>'%HEADER% %FIRST% %UP_PAGE% %LINK_PAGE% %DOWN_PAGE% %END%',
+    ],
+
+    //图片上传配置
+    /*'UPLOAD_SETTING'=> [
+        'rootPath'     => ROOT_PATH,
+        'savePath'     => 'uploads/',
+        'mimes'        => array(), //允许上传的文件MiMe类型
+        'maxSize'      => 0, //上传的文件大小限制 (0-不做限制)
+        'exts'         => array(), //允许上传的文件后缀
+        'autoSub'      => true, //自动子目录保存文件
+        'subName'      => array('date', 'Y-m-d'), //子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
+        'saveName'     => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
+        'saveExt'      => '', //文件保存后缀，空则使用原后缀
+        'replace'      => false, //存在同名是否覆盖
+        'hash'         => true, //是否生成hash编码
+    ],*/
+    //文件上传配置，七牛云配置
+    'UPLOAD_SETTING'=>  require 'upload.php',
+
 
 );

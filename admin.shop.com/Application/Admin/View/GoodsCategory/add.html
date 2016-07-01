@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
+    <style type="text/css">
+        ul.ztree{
+            margin-top: 10px;
+            border: 1px solid #617775;
+            background: #f0f6e4;
+            width: 220px;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-left: 30px;width: 500px">
+    <h1>添加分类</h1>
+    <form action="{:U()}" method="post">
+        商品分类名称<input type="text" class="form-control" name="name" value="{$row.name}"/><br>
+        <div class="">父级分类
+            <input type="hidden"  name="parent_id" id='parent_id'/>
+            <input type='text' class="form-control" disabled='disabled' id='parent_name' style="padding-left:1em;"/>
+            <ul id="goods_categories" class="ztree"></ul>
+        </div>
+        商品分类描述<input type="text" class="form-control" name="intro" value="{$row.intro}"/><br>
+        是否显示
+        <input type="radio" name="status" value="1" class="status"/> 是
+        <input type="radio" name="status" value="0" class="status" /> 否<br>
+        <input type="hidden" name="id" value="{$row.id}" />
+        <input type="submit" value="提交">
+    </form>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.core.js"></script>
+<script type='text/javascript'>
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: 'parent_id',
+            },
+        },
+        callback:{
+            onClick:function(event,node,item){
+                //取出点击节点的数据，放到表单节点中
+                $('#parent_id').val(item.id);
+                $('#parent_name').val(item.name);
+            },
+        },
+    };
+
+    var goods_categories = {$goods_categories};
+    $(function () {
+        //回显商品分类状态
+        $('.status').val([{$row.status|default=1}]);
+        //初始化ztree插件
+        var goods_category_ztree = $.fn.zTree.init($("#goods_categories"), setting, goods_categories);
+        //展开所有的节点
+        goods_category_ztree.expandAll(true);
+
+        //编辑页面回显父级分类
+        <present name="row">
+            var parent_node = goods_category_ztree.getNodeByParam('id',{$row.parent_id});
+            goods_category_ztree.selectNode(parent_node);
+            $('#parent_id').val(parent_node.id);
+            $('#parent_name').val(parent_node.name);
+        </present>
+    });
+</script>
+</body>
+</html>

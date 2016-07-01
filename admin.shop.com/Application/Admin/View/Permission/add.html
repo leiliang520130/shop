@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
+    <style type="text/css">
+        ul.ztree{
+            margin-top: 10px;
+            border: 1px solid #617775;
+            background: #f0f6e4;
+            width: 220px;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-left: 30px;width: 500px">
+    <h1><a href="{:U('index')}">权限列表</a></h1>
+    <form action="{:U()}" method="post" enctype="multipart/form-data">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">权限名称：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="name" class="form-control" value="{$row.name}">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">权限地址：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="path" class="form-control" value="{$row.name}">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">父级权限：</label>
+                <div class="col-sm-9">
+                    <input type='hidden' name="parent_id" id='permission_id'/>
+                    <input type='text' disabled='disabled' id='permission_name'/>
+                    <ul id='pemission-ztree' class="ztree"></ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">权限描述：</label>
+                <div class="col-sm-9">
+                    <textarea name="intro" class="form-control" cols="42" rows="4">{$row.intro}</textarea>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">排序：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="sort" class="form-control" value="{$row.sort|default=50}">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">是否显示：</label>
+                <div class="col-sm-9">
+                    <input type="radio" name="status" value="1" class="status"/> 是
+                    <input type="radio" name="status" value="0" class="status" /> 否
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="hidden" name="id" value="{$row.id}" />
+                <input type="submit" value="添加">
+            </div>
+        </div>
+    </form>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.core.js"></script>
+<script type='text/javascript'>
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                idKey: "id",
+                pIdKey: "parent_id",
+                rootPId: 0
+            }
+        },
+        callback: {
+            onClick: function (event, ztree_obj, node) {
+                $('#permission_id').val(node.id);
+                $('#permission_name').val(node.name);
+            },
+        },
+    };
+
+    //节点数据
+    var permissions = {$permissions};
+
+    //初始化ztree
+    var permissions_ztree = $.fn.zTree.init($("#pemission-ztree"), setting, permissions);
+
+    //展开所有的节点
+    permissions_ztree.expandAll(true);
+    //回显数据
+    $('.status').val([{$row.status|default=1}]);
+    <present name="row">
+    //回显ztree
+    //1.找到父级权限的节点
+    var parent_permission_node = permissions_ztree.getNodeByParam('id', {$row.parent_id});
+    console.debug($('#permission_id'))
+    //2.选择这个节点
+    permissions_ztree.selectNode(parent_permission_node);
+    //3.绑定数据
+    $('#permission_id').val(parent_permission_node.id);
+    $('#permission_name').val(parent_permission_node.name);
+    </present>
+</script>
+</body>
+</html>

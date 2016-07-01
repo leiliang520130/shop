@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <css href="__CSS__/page.css" />
+    <css href="__TREEGRID__/css/jquery.treegrid.css" />
+</head>
+<body>
+<div style="margin-left: 20px;width: 800px;">
+    <h1><a href="{:U('add')}">添加新商品</a></h1>
+    <div class="form-div">
+        <form action="" name="searchForm">
+            <img src="__IMG__/icon_search.gif" width="26" height="22" border="0" alt="search" />
+            <!-- 分类 -->
+            {:arr2select($goods_categories,'name','id','goods_category_id',I('get.goods_category_id'))}
+            <!-- 品牌 -->
+            {:arr2select($brands,'name','id','brand_id',I('get.brand_id'))}
+            <!-- 推荐 -->
+            {:arr2select($goods_statuses,'name','id','goods_status',I('get.goods_status'))}
+            <!-- 上架 -->
+            {:arr2select($is_on_sales,'name','id','is_on_sale',I('get.is_on_sale'))}
+            <!-- 关键字 -->
+            关键字 <input type="text" name="keyword" value="{:I('get.keyword')}"  size="15" />
+            <input type="submit" value=" 搜索 " class="button" />
+        </form>
+    </div>
+    <table class="table table-striped table-bordered tree">
+        <tr>
+            <th>编号</th>
+            <th>商品名称</th>
+            <th>货号</th>
+            <th>价格</th>
+            <th>上架</th>
+            <th>精品</th>
+            <th>新品</th>
+            <th>热销</th>
+            <th>推荐排序</th>
+            <th>库存</th>
+            <th>操作</th>
+        </tr>
+        <foreach name="rows" item="row">
+            <tr>
+                <td align="center">{$row.id}</td>
+                <td align="center" class="first-cell">{$row.name}</td>
+                <td align="center">{$row.sn}</td>
+                <td align="center">{$row.shop_price}/{$row.market_price}</td>
+                <td align="center"><img src="__IMG__/<if condition='$row["is_on_sale"] eq 1'>yes.gif<else/>no.gif</if>"/></td>
+                <td align="center"><img src="__IMG__/<if condition='$row["is_best"]'>yes.gif<else/>no.gif</if>"/></td>
+                <td align="center"><img src="__IMG__/<if condition='$row["is_new"]'>yes.gif<else/>no.gif</if>"/></td>
+                <td align="center"><img src="__IMG__/<if condition='$row["is_hot"]'>yes.gif<else/>no.gif</if>"/></td>
+                <td align="center">{$row.sort}</td>
+                <td align="center">{$row.stock}</td>
+                <td align="center">
+                    <a href="{:U('edit',['id'=>$row['id']])}" title="编辑"><img src="__IMG__/icon_edit.gif" width="16" height="16" border="0" /></a>
+                    <a href="{:U('remove',['id'=>$row['id']])}" onclick="" title="删除"><img src="__IMG__/icon_trash.gif" width="16" height="16" border="0" /></a></td>
+            </tr>
+        </foreach>
+    </table>
+    <div class="page">
+        {$page_html}
+    </div>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<js href='__TREEGRID__/js/jquery.treegrid.js'/>
+<script type='text/javascript'>
+    $('.tree').treegrid();
+    //选中项
+    $('#goods_category').val([{:I('get.goods_category_id')}]);
+    $('#brand_id').val([{:I('get.brand_id')}]);
+    $('#goods_status').val([{:I('get.goods_status')}]);
+
+</script>
+</body>
+</html>

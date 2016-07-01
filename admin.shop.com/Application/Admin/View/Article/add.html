@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div style="margin-left: 20px;width: 400px">
+      <form method="post" action="{:U()}">
+          文章标题<input type="text" class="form-control" name="name" value="{$row.name}"/><br>
+          文章描述<input type="text" class="form-control" name="intro" value="{$row.intro}"/><br>
+          文章分类<select id='cate' class="form-control" name="article_category_id">
+          <foreach name="categorys" item="category">
+              <option value="{$category.id}" class="category">{$category.name}</option>
+          </foreach>
+          </select><br>
+          文章状态
+          <input type="radio" name="status" value="1" class="status"/> 是
+          <input type="radio" name="status" value="0" class="status" /> 否<br>
+          文章排序<input type="text" class="form-control" name="sort" maxlength="40" size="15" value="{$row.sort|default=50}" /><br>
+          文章内容<textarea class="form-control" name="content">{$content.content}</textarea><br>
+          <input type="hidden" name="id" value="{$row.id}" />
+          <input type="submit" value="提交">
+      </form>
+  </div>
+  <js href='__JS__/jquery.min.js'/>
+  <script type='text/javascript'>
+      $(function(){
+          //回显供应商状态
+          $('.status').val([{$row.status|default=1}]);
+          $("#cate option[value='{$row.article_category_id}']").attr("selected","selected");
+      });
+  </script>
+</body>
+</html>

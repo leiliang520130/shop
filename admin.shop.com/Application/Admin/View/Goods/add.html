@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
+    <css href='__UPLOADIFY__/common.css'/>
+    <style type="text/css">
+        .gallery-upload-pre-item img{
+            width:150px;
+        }
+
+        .gallery-upload-pre-item{
+            display:inline-block;
+        }
+
+        .gallery-upload-pre-item a{
+            position:relative;
+            top:5px;
+            right:15px;
+            float:right;
+            color:red;
+            font-size:16px;
+            text-decoration:none;
+        }
+        ul.ztree{
+            margin-top: 10px;
+            border: 1px solid #617775;
+            background: #f0f6e4;
+            width: 220px;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="col-xs-6 col-md-offset-3">
+    <form action="{:U()}" method="post" enctype="multipart/form-data">
+        商品名称:<input type="text" class="form-control" name="name" value="{$row.name}"/><br>
+        商品货号:
+        <present name='row'>
+            <input type="text" class="form-control" disabled="disabled" name="sn" value="{$row.sn}"/><br>
+            <else />
+            <input type="text" class="form-control" name="sn"/><br>
+        </present>
+        <div class="">父级分类
+            <input type="hidden"  name="goods_category_id" id='goods_category_id'/>
+            <input type='text' class="form-control" disabled='disabled' id='goods_category_name' style="padding-left:1em;"/>
+            <ul id="goods_categories" class="ztree"></ul>
+        </div>
+        商品品牌:
+        <select class="form-control" name="brand_id" id="brand">
+            <option value="">请选择</option>
+            <foreach name="brands" item="brand">
+                <option value="{$brand.id}">{$brand.name}</option>
+            </foreach>
+        </select>
+        供货商：
+        <select class="form-control" name="supplier_id" id="supplier">
+            <option value="">请选择</option>
+            <foreach name="suppliers" item="supplier">
+                <option value="{$supplier.id}">{$supplier.name}</option>
+            </foreach>
+        </select>
+        本店售价：
+        <input type="text" class="form-control" name="shop_price" value="{$row.shop_price}"/>
+        市场售价:
+        <input type="text" class="form-control" name="market_price" value="{$row.market_price}"/>
+        商品数量：
+        <input type="text" class="form-control" name="stock" value="{$row.stock|default=100}"/>
+        是否上架:
+        <input type="radio" name="is_on_sale" value="1" class="is_on_sale"/> 是
+        <input type="radio" name="is_on_sale" value="0" class="is_on_sale" /> 否<br>
+        加入推荐:
+        <input type="checkbox" name="goods_status[]" value="1" class="goods_status"/> 精品
+        <input type="checkbox" name="goods_status[]" value="2" class="goods_status"/> 新品
+        <input type="checkbox" name="goods_status[]" value="4" class="goods_status"/> 热销<br>
+        推荐排序:
+        <input type="text" class="form-control" name="sort" size="5" value="{$row.sort|default=50}"/>
+        商品详细描述:
+        <textarea name="content" id="editor">{$row.content}</textarea>
+        商品相册:
+
+            <div class="gallery-upload-img-box">
+                <foreach name="row.galleries" item="gallery">
+                    <div class="gallery-upload-pre-item">
+                        <img src="{$gallery}"/>
+                        <a href="#" data="{$key}">×</a>
+                    </div>
+                </foreach>
+            </div>
+
+            <div>
+                <input type="file" id="goods_gallery"/>
+            </div>
+
+        <input type="hidden" name="id" value="{$row.id}" />
+        <input type="submit" value="提交">
+    </form>
+</div>
+<!--初始化编辑器-->
+<script type="text/javascript" charset="utf-8" src="__UEDITOR__/my.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="__UEDITOR__/ueditor.all.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="__UEDITOR__/lang/zh-cn/zh-cn.js"></script>
+<script type="text/javascript">
+    var ue = UE.getEditor('editor');
+</script>
+
+<js href='__JS__/jquery.min.js'/>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.core.js"></script>
+<js href='__UPLOADIFY__/jquery.uploadify.min.js'/>
+<js href='__LAYER__/layer.js'/>
+
+<script type='text/javascript'>
+    //回显状态开始
+    $("#brand option[value='{$row.brand_id}']").attr("selected","selected");
+    $("#supplier option[value='{$row.supplier_id}']").attr("selected","selected");
+    $('.is_on_sale').val([{$row.is_on_sale|default=1}]);
+    $('.goods_status').val({$row.goods_status|default='[]'});
+    //回显状态结束
+
+    //ztree  开始
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: 'parent_id',
+            },
+        },
+        callback:{
+            onClick:function(event,node,item){
+                //取出点击节点的数据，放到表单节点中
+                $('#goods_category_id').val(item.id);
+                $('#goods_category_name').val(item.name);
+            },
+        },
+    };
+
+    var goods_categories = {$goods_categories};
+    $(function () {
+        //回显商品分类状态
+        $('.status').val([{$row.status|default=1}]);
+        //初始化ztree插件
+        var goods_category_ztree = $.fn.zTree.init($("#goods_categories"), setting, goods_categories);
+        //展开所有的节点
+        goods_category_ztree.expandAll(true);
+
+        //编辑页面回显父级分类
+        <present name="row">
+            //获取父级分类在ztree中的节点
+            var parent_node = goods_category_ztree.getNodeByParam('id',{$row.goods_category_id});
+            goods_category_ztree.selectNode(parent_node);
+            $('#goods_category_id').val(parent_node.id);
+            $('#goods_category_name').val(parent_node.name);
+        </present>
+    });
+
+    //图片上传开始
+    //使用uploadify初始化logo文件框
+    $options = {
+        swf:'__UPLOADIFY__/uploadify.swf',
+        uploader:'{:U("Upload/uploadImg")}',
+        buttonText:' 选择文件 ',
+        fileObjName:'file_data',
+        onUploadSuccess:function(file_item,response){
+            //根据返回的status来判定是否成功
+            var data = $.parseJSON(response);
+            if(data.status){
+                var html = '<div class="gallery-upload-pre-item">\
+                                        <img src="'+data.file_url+'"/>\
+                                        <a href="#">×</a>\
+                                        <input type="hidden" name="path[]" value="'+data.file_url+'"/>\
+                                    </div>';
+                $(html).appendTo($('.gallery-upload-img-box'));
+                layer.alert(data.msg, {icon: 6});
+            }else{
+                layer.alert(data.msg, {icon: 5});
+            }
+        },
+    };
+    $('#goods_gallery').uploadify($options);
+
+
+    ///////////////////////  通过ajax删除相册   ///////////////////////
+    //使用事件委托
+    $('.gallery-upload-img-box').on('click','a',function(){
+        //删除图片
+        //通过a标签上的data属性来判断是不是新上传的
+        var node = $(this);
+        var id = $(this).attr('data');
+        //删除数据库的记录,使用ajax
+        if(id){
+            var url = '{:U("Goods/removeGallery")}';
+            var data = {
+                id:id,
+            };
+            $.getJSON(url,data,function(response){
+                console.debug(response);
+                //判断是否删除成功
+                if(response.status){
+                    //成功,删除节点
+                    node.parent().remove();
+                    layer.alert('删除成功',{icon:6});
+                }
+            });
+        }else {
+            node.parent().remove();
+            layer.alert('删除成功',{icon:6});
+        }
+        console.log($(this).parent());
+        //移除div
+        return false;
+    });
+</script>
+</body>
+</html>
