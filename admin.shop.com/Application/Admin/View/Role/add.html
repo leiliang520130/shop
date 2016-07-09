@@ -73,7 +73,7 @@
                 pIdKey: 'parent_id',
             }
         },
-        //使用checkbox方式,进行复选,关联子,不关联父
+        //使用checkbox方式,进行复选
         check: {
             enable: true,
             chkboxType: {"Y": "s", "N": "s"},
@@ -98,9 +98,6 @@
 
     //展开所有的节点
     permissions_ztree.expandAll(true);
-
-
-    ///////////////////////////////         回显数据      ///////////////////////////////
     $('.status').val([{$row.status|default=1}]);
     <present name="row">
     var permission_ids = {$row.permission_ids};

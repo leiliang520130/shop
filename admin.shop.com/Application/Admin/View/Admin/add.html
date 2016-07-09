@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
+    <style type="text/css">
+        ul.ztree{
+            margin-top: 10px;
+            border: 1px solid #617775;
+            background: #f0f6e4;
+            width: 220px;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-left: 30px;width: 500px">
+    <h1><a href="{:U('index')}">管理员列表</a></h1>
+    <form action="{:U()}" method="post" enctype="multipart/form-data">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">用户名：</label>
+                <div class="col-sm-9">
+                    <present name="row">
+                        <span class="form-control">{$row.username}</span>
+                    <else/>
+                        <input type="text" name="username" class="form-control" value="{$row.username}">
+                    </present>
+                </div>
+            </div>
+            <notpresent name="row">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">密码：</label>
+                <div class="col-sm-9">
+                    <input type="password" name="password" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">重复密码：</label>
+                <div class="col-sm-9">
+                    <input type="password" name="repassword" class="form-control">
+                </div>
+            </div>
+            </notpresent>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">邮箱：</label>
+                <div class="col-sm-9">
+                    <present name="row">
+                        <span class="form-control">{$row.email}</span>
+                    <else/>
+                        <input type="text" name="email" class="form-control" value="{$row.email}">
+                    </present>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">权限：</label>
+                <div class="col-sm-9">
+                    <div id='role_ids'>
+                    </div>
+                    <ul class="ztree" id='roles'></ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="hidden" name="id" value="{$row.id}" />
+                <input type="submit" value="添加">
+            </div>
+        </div>
+    </form>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.excheck.js"></script>
+<script type='text/javascript'>
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: 'parent_id',
+            }
+        },
+        //使用checkbox方式,进行复选
+        check: {
+            enable: true,
+            chkboxType: {"Y": "s", "N": "s"},
+        },
+        callback: {
+            onCheck: function () {
+                //1.获取所有的被勾选的节点
+                var nodes = roles_ztree.getCheckedNodes(true);
+                //2.遍历这些节点,清空隐藏域,添加当前的所有勾选的节点
+                $('#role_ids').empty();
+                $(nodes).each(function(i,v){
+                    var html = '<input type="hidden" name="role_id[]" value="' + v.id + '"/>';
+                    $(html).appendTo($('#role_ids'));
+                });
+            },
+        },
+    };
+    var roles = {$roles};
+
+    //初始化
+    var roles_ztree = $.fn.zTree.init($('#roles'), setting, roles);
+
+    //展开所有的节点
+    roles_ztree.expandAll(true);
+    $('.status').val([{$row.status|default=1}]);
+
+    <present name="row">
+    var role_ids = {$row.role_ids};
+    //遍历所有的权限id,然后勾选
+    $(role_ids).each(function(i,v){
+        //找到这个节点
+        var node = roles_ztree.getNodeByParam('id',v);
+        roles_ztree.checkNode(node,true);
+        console.debug(node);
+        //2.遍历这些节点,清空隐藏域,添加当前的所有勾选的节点
+        var html = '<input type="hidden" name="role_id[]" value="' + v + '"/>';
+        $(html).appendTo($('#role_ids'));
+    });
+    </present>
+</script>
+</body>
+</html>

@@ -122,4 +122,8 @@ class RoleModel extends Model{
         return true;
     }
 
+    public function getList(){
+        return $this->where(['status'=>1])->select();
+    }
+
 }

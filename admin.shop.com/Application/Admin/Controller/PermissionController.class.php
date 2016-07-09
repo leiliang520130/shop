@@ -49,11 +49,10 @@ class PermissionController extends Controller{
             if($this->model->create() === false){
                 $this->error(get_error($this->model));
             }
-            if($this->model->savePermission($id)){
+            if($this->model->savePermission($id) === false){
                 $this->error(get_error($this->model));
             }
             $this->success('添加成功',U('index'));
-            $this->display();
         }else{
             $row = $this->model->find($id);
             $this->assign('row',$row);

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <css href='__UPLOADIFY__/common.css'/>
+    <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
+    <style type="text/css">
+        ul.ztree{
+            margin-top: 10px;
+            border: 1px solid #617775;
+            background: #f0f6e4;
+            width: 220px;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-left: 30px;width: 500px">
+    <h1><a href="{:U('index')}">品牌列表</a></h1>
+    <form action="{:U()}" method="post" enctype="multipart/form-data">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">菜单名称：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="name" maxlength="60" value="{$row.name}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">菜单链接：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="path" maxlength="60" value="{$row.path}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">父级菜单：</label>
+                <div class="col-sm-9">
+                    <input type="hidden" name="parent_id" id='parent_id'/>
+                    <input type='text' disabled='disabled' id='parent_name' style="padding-left:1em;"/>
+                    <ul id="parent_menu" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">相关权限：</label>
+                <div class="col-sm-9">
+                    <div id="permission_ids"></div>
+                    <ul id="permissions" class="ztree"></ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">菜单描述：</label>
+                <div class="col-sm-9">
+                    <textarea  name="intro" cols="60" rows="4"  >{$row.intro}</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">是否显示：</label>
+                <div class="col-sm-9">
+                    <input type="radio" name="status" value="1" class="status"/> 是
+                    <input type="radio" name="status" value="0" class="status" /> 否
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="hidden" name="id" value="{$row.id}" />
+                <input type="submit" value="提交">
+            </div>
+        </div>
+    </form>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="__ZTREE__/js/jquery.ztree.excheck.js"></script>
+<script type='text/javascript'>
+    var menu_setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: 'parent_id',
+            },
+        },
+        callback:{
+            onClick:function(event,node,item){
+                //取出点击节点的数据，放到表单节点中
+                $('#parent_id').val(item.id);
+                $('#parent_name').val(item.name);
+            },
+        },
+    };
+
+    var menus = {$menus};
+    //回显商品菜单状态
+    $('.status').val([{$row.status|default=1}]);
+    //初始化ztree插件
+    var menu_ztree = $.fn.zTree.init($("#parent_menu"), menu_setting, menus);
+    //展开所有的节点
+    menu_ztree.expandAll(true);
+
+    //回显父级菜单
+    <present name="row">
+    //找到父级菜单
+    var parent_node = menu_ztree.getNodeByParam('id',{$row.parent_id});
+    //选中父级菜单
+    menu_ztree.selectNode(parent_node);
+    //将数据放到控件中
+    $('#parent_id').val(parent_node.id);
+    $('#parent_name').val(parent_node.name);
+    </present>
+    //关联权限
+    var permission_setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                pIdKey: 'parent_id',
+            },
+        },
+        check:{
+            enable:true,
+            chkboxType: {"Y": "s", "N": "s"},
+        },
+        callback:{
+            onCheck:function(event,node,item){
+                //1.获取所有的被勾选的节点
+                var nodes = permissions_ztree.getCheckedNodes(true);
+                //2.遍历这些节点,清空隐藏域,添加当前的所有勾选的节点
+                $('#permission_ids').empty();
+                $(nodes).each(function(i,v){
+                    var html = '<input type="hidden" name="permission_id[]" value="' + v.id + '"/>';
+                    $(html).appendTo($('#permission_ids'));
+                });
+            },
+        },
+    };
+
+    //所有的权限
+    var permissions = {$permissions};
+
+    //初始化
+    var permissions_ztree = $.fn.zTree.init($('#permissions'), permission_setting, permissions);
+    //展开所有的节点
+    permissions_ztree.expandAll(true);
+    //回显
+    <present name="row">
+    var permission_ids = {$row.permission_ids};
+    $(permission_ids).each(function(i,v){
+        //找到这个节点
+        var node = permissions_ztree.getNodeByParam('id',v);
+        permissions_ztree.checkNode(node,true);
+
+        //2.遍历这些节点,清空隐藏域,添加当前的所有勾选的节点
+        var html = '<input type="hidden" name="permission_id[]" value="' + v + '"/>';
+        $(html).appendTo($('#permission_ids'));
+    });
+    </present>
+</script>
+</body>
+</html>

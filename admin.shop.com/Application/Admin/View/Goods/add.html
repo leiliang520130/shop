@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="__ZTREE__/css/zTreeStyle/zTreeStyle.css" type="text/css"/>
     <css href='__UPLOADIFY__/common.css'/>
     <style type="text/css">
-        .gallery-upload-pre-item img{
+        #logo_preview,.gallery-upload-pre-item img{
             width:150px;
         }
 
@@ -38,6 +38,10 @@
 <div class="col-xs-6 col-md-offset-3">
     <form action="{:U()}" method="post" enctype="multipart/form-data">
         商品名称:<input type="text" class="form-control" name="name" value="{$row.name}"/><br>
+        商品LOGO
+        <input type="hidden" name="logo" id="logo" value="{$row.logo}"><br>
+        <img src="{$row.logo}" id="logo_preview">
+        <input type="file" id="goods_logo"><br>
         商品货号:
         <present name='row'>
             <input type="text" class="form-control" disabled="disabled" name="sn" value="{$row.sn}"/><br>
@@ -104,7 +108,7 @@
 <script type="text/javascript" charset="utf-8" src="__UEDITOR__/ueditor.all.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="__UEDITOR__/lang/zh-cn/zh-cn.js"></script>
 <script type="text/javascript">
-    var ue = UE.getEditor('editor');
+    var ue = UE.getEditor('editor',{serverUrl: '{:U("Editor/ueditor")}'});
 </script>
 
 <js href='__JS__/jquery.min.js'/>
@@ -158,7 +162,7 @@
 
     //图片上传开始
     //使用uploadify初始化logo文件框
-    $options = {
+    options = {
         swf:'__UPLOADIFY__/uploadify.swf',
         uploader:'{:U("Upload/uploadImg")}',
         buttonText:' 选择文件 ',
@@ -179,7 +183,7 @@
             }
         },
     };
-    $('#goods_gallery').uploadify($options);
+    $('#goods_gallery').uploadify(options);
 
 
     ///////////////////////  通过ajax删除相册   ///////////////////////
@@ -212,6 +216,27 @@
         //移除div
         return false;
     });
+
+    //上传logo
+
+    logo_options = {
+        swf:'__UPLOADIFY__/uploadify.swf',
+        uploader:'{:U("Upload/uploadImg")}',
+        buttonText:' 选择文件 ',
+        fileObjName:'file_data',
+        onUploadSuccess:function(file_item,response){
+            //根据返回的status来判定是否成功
+            var data = $.parseJSON(response);
+            if(data.status){
+                $('#logo').val(data.file_url);
+                $('#logo_preview').attr('src',data.file_url);
+                layer.alert(data.msg, {icon: 6});
+            }else{
+                layer.alert(data.msg, {icon: 5});
+            }
+        },
+    };
+    $('#goods_logo').uploadify(logo_options);
 </script>
 </body>
 </html>
