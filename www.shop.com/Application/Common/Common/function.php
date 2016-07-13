@@ -81,3 +81,12 @@ function get_redis(){
     $redis->connect(C('REDIS_HOST'),C('REDIS_PORT'));
     return $redis;
 }
+
+/**
+ * 本地金钱表示形式：900 表示为 900.00
+ * @param $number
+ * @return string
+ */
+function locate_number_format($number){
+    return number_format($number,2,'.','');
+}

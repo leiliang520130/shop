@@ -67,6 +67,9 @@
                 <option value="{$supplier.id}">{$supplier.name}</option>
             </foreach>
         </select>
+        <foreach name="member_levels" item="member_level">
+            {$member_level.name}<input type="text" class="form-control" name="member_level_price[{$member_level.id}]" value="{$row['member_prices'][$member_level['id']]}" size="20"/> <br />
+        </foreach>
         本店售价：
         <input type="text" class="form-control" name="shop_price" value="{$row.shop_price}"/>
         市场售价:

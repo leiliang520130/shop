@@ -58,4 +58,27 @@ class CartController extends Controller{
         $this->assign($car_list);
         $this->display();
     }
+
+    //填写订单信息
+    public function flow2(){
+        $userinfo = session('USERINFO');
+        if(!$userinfo){
+            cookie('__FORWARD__',__SELF__);//记录登录状态页面
+            $this->error('你没有登录，请登录!',U('Member/login'));
+        }else{
+            //1.获取收货地址
+            $addressModel = D('Address');
+            $this->assign('addresses',$addressModel->getList());
+            //2·获取配送方式
+            $deliveryModel = D('Delivery');
+            $this->assign('deliveries',$deliveryModel->getList());
+            //3·获取支付方式
+            $paymentModel = D('Payment');
+            $this->assign('payments',$paymentModel->getList());
+            //4·获取购物车数据
+            $car_list = $this->model->getShoppingCarList();
+            $this->assign($car_list);
+            $this->display();
+        }
+    }
 }

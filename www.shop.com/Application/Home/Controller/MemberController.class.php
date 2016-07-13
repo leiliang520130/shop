@@ -72,6 +72,7 @@ class MemberController extends Controller{
             if(!$url){
                 $url = U('Index/index');
             }
+
             $this->success('登录成功',$url);
         }else{
             $this->display();
@@ -92,5 +93,73 @@ class MemberController extends Controller{
         }else{
             $this->ajaxReturn(false);
         }
+    }
+
+    /**
+     * 收货地址页面
+     * 
+     */
+    public function locationIndex() {
+        $locationsModel = D('Locations');
+        $provinces = $locationsModel->getListByParentId();
+        $this->assign('provinces',$provinces);
+        //获取当前用户所有的收货信息
+        $addressModel = D('Address');
+        $this->assign('addresses',$addressModel->getList());
+        $this->display();
+    }
+    
+    /**
+     * 获取下一级城市列表返回json
+     */
+    public function getLocationListByParentId($parent_id) {
+        //获取省份列表
+        $locationsModel = D('Locations');
+        $provinces = $locationsModel->getListByParentId($parent_id);
+        $this->ajaxReturn($provinces);
+    }
+
+    //添加收货地址
+    public function addLocation() {
+        $addressModel = D('Address');
+        if($addressModel->create() === false){
+            $this->error(get_error($addressModel));
+        }
+        if($addressModel->addAddress() === false){
+            $this->error(get_error($addressModel));
+        }
+        $this->success('添加完成',U('locationIndex'));
+
+    }
+
+    //设置默认地址
+    public function setdefault($id) {
+        $addressModel = D('Address');
+        $rst = $addressModel->setdefault($id);
+        echo $rst;
+    }
+
+    //修改收货地址
+    public function modifyLocation($id) {
+        if(IS_POST){
+            $addressModel = D('Address');
+            if($addressModel->create() === false){
+                $this->error(get_error($addressModel));
+            }
+            if($addressModel->saveAddress() === false){
+                $this->error(get_error($addressModel));
+            }
+            $this->success('修改成功',U('locationIndex'));
+        }else{
+            $addressModel = D('Address');
+            $row = $addressModel->getAddressInfo($id);
+            $this->assign('row',$row);
+            //获取省份列表
+            $location_model = D('Locations');
+            $provices = $location_model->getListByParentId();
+            $this->assign('provinces',$provices);
+            $this->display();
+        }
+
     }
 }

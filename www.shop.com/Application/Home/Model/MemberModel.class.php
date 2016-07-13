@@ -23,8 +23,8 @@ class MemberModel extends Model{
         ['tel','require','手机号码不能为空'],
         ['tel','/^\d{11}$/','手机号码不合法',self::EXISTS_VALIDATE,'regex'],
         ['email','','邮箱已存在',self::EXISTS_VALIDATE,'unique'],
-        ['checkcode','require','图片验证码不能为空'],
-        ['checkcode','checkImgCode','图验证码不正确',self::EXISTS_VALIDATE,'callback'],
+        //['checkcode','require','图片验证码不能为空'],
+        //['checkcode','checkImgCode','图验证码不正确',self::EXISTS_VALIDATE,'callback'],
         ['captcha','require','手机验证码不能为空'],
         ['captcha','checkTelCode','手机验证码不正确',self::EXISTS_VALIDATE,'callback'],
     ];
@@ -110,7 +110,7 @@ class MemberModel extends Model{
         //获取cookie中的数据存入数据库中
         $shoppingCarModel = D('ShoppingCar');
         $shoppingCarModel->cookie2db();
-
+        cookie(C('SHOPPING_CAR_COOKIE_KEY'),null);
         return $userinfo;
 
     }

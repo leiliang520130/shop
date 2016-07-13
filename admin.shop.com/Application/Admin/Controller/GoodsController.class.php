@@ -127,6 +127,9 @@ class GoodsController extends Controller{
         $goodsSupplierModel = D('Supplier');
         $suppliers = $goodsSupplierModel->getList();
         $this->assign('suppliers', $suppliers);
+        //准备会员等级列表
+        $memberLevelModel = D('MemberLevel');
+        $this->assign('member_levels',$memberLevelModel->getList());
     }
 
     /**

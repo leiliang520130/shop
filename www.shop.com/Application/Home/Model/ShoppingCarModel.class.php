@@ -86,9 +86,65 @@ class ShoppingCarModel extends Model{
         $userinfo = session('USERINFO');
         //如果登录获取数据库的数据
         if($userinfo){
-
+            $car_list = $this->where(['member_id'=>$userinfo['id']])->getField('goods_id,amount');
         }else{
             //获取cookie的数据
+            $car_list = cookie(C('SHOPPING_CAR_COOKIE_KEY'));
         }
+        if(!$car_list){
+            return [
+                'total_price' => '0.00',
+                'goods_info_list'=>[],
+            ];
+        }
+
+        //获取了购物车信息查询商品信息
+        $goodsModel = M('Goods');
+        $cond = [
+            'id'=>['in',array_keys($car_list)],
+            'is_on_sale'=>1,
+            'status'=>1,
+        ];
+        $goods_info_list = $goodsModel->where($cond)->getField('id,name,logo,shop_price');
+        $total_price = 0;
+        //读取用户的积分
+        $score = M('Member')->where(['id'=>$userinfo['id']])->getField('score');
+        //获取用户的级别
+        $cond = [
+            'bottom'=>['elt',$score],
+            'top'=>['egt',$score],
+        ];
+        $member_level = M('MemberLevel')->where($cond)->field('id,discount')->find();
+        $member_level_id = $member_level['id'];
+        $discount = $member_level['discount'];
+        //获取用户的会员价
+        $member_goods_price_model = M('MemberGoodsPrice');
+        foreach($car_list as $goods_id=>$amount){
+            //获取当前商品的会员价
+            $cond = [
+                'goods_id'=>$goods_id,
+                'member_level_id'=>$member_level_id,
+            ];
+            $member_price = $member_goods_price_model->where($cond)->getField('price');
+            if($member_price){
+                $goods_info_list[$goods_id]['shop_price'] = locate_number_format($member_price);
+            }else{
+                $goods_info_list[$goods_id]['shop_price'] = locate_number_format($goods_info_list[$goods_id]['shop_price'] * $discount / 100);
+
+            }
+            //此时应当将会员价读取出来
+            $goods_info_list[$goods_id]['amount'] = $amount;
+
+            $goods_info_list[$goods_id]['sub_total'] = locate_number_format($goods_info_list[$goods_id]['shop_price'] * $amount);
+            $total_price += $goods_info_list[$goods_id]['sub_total'];
+        }
+        $total_price = locate_number_format($total_price);
+        return compact('total_price','goods_info_list');
+    }
+
+    //删除购物车
+    public function clearShoppingCar() {
+        $userinfo = session('USERINFO');
+        return $this->where(['member_id'=>$userinfo['id']])->delete();
     }
 }
