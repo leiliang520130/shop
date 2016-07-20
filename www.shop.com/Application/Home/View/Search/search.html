@@ -1,0 +1,53 @@
+<extend name="Layout:index_base"/>
+<block name="css">
+    <link rel="stylesheet" href="__CSS__/goods.css" type="text/css">
+
+    <!--引入jqzoom css -->
+    <link rel="stylesheet" href="__CSS__/jqzoom.css" type="text/css">
+    <link rel="stylesheet" href="__CSS__/common.css" type="text/css">
+    <style>
+       #goodsList{
+           display: inline-block;
+           background: red;
+       }
+        .goods{
+            margin-right: 20px;
+            margin-bottom: 10px;
+            width: 280px;
+            height: 200px;
+            border: 1px solid #ccc;
+            float: left;
+        }
+        dt{
+            text-align: center;
+        }
+        dd{
+            text-align: center;
+        }
+        dd strong{
+            color: red;
+            font-size: 20px;
+        }
+    </style>
+</block>
+<block name="content">
+    <!-- 商品页面主体 start -->
+    <div class="main w1210 mt10 bc">
+            <!-- 浏览过该商品的人还浏览了  start 注：因为和list页面newgoods样式相同，故加入了该class -->
+            <foreach name="list" item="goods">
+                    <div class="goods">
+                            <dl>
+                                <dt><a href="{:U('Index/goods',['id'=>$goods['id']])}"><img src="{$goods.logo}" alt="" width="130px" height="130px"/></a></dt>
+                                <dd><a href="{:U('Index/goods',['id'=>$goods['id']])}">{$goods.name}</a></dd>
+                                <dd><strong>￥{$goods.market_price}</strong></dd>
+                            </dl>
+                    </div>
+            </foreach>
+            </div>
+            <!-- 浏览过该商品的人还浏览了  end -->
+        </div>
+        <!-- 主体页面左侧内容 end -->
+    </div>
+    <!-- 商品页面主体 end -->
+
+</block>

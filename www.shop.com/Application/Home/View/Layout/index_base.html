@@ -11,7 +11,41 @@
     <link rel="stylesheet" href="__CSS__/bottomnav.css" type="text/css">
     <link rel="stylesheet" href="__CSS__/footer.css" type="text/css">
     <block name="css"></block>
+    <style>
+        #shelper{
+            overflow: hidden;
+            position: absolute;
+            top: 87px;
+            left: 423px;
+            width: 500px;
+            border: 1px solid #CCC;
+            background: #fff;
+            z-index: 999;
+        }
+        #shelper li {
+            overflow: hidden;
+            padding: 1px 6px;
+            line-height: 22px;
+            cursor: pointer;
+        }
+        #shelper .search-item {
+            float: left;
+            width: 190px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        #shelper .search-count {
+            overflow: hidden;
+            color: #aaa;
+            text-align: right;
+        }
+        #shelper .close {
+            border-top: 1px solid #efefef;
+            text-align: right;
+        }
 
+    </style>
 
 </head>
 <body>
@@ -25,7 +59,7 @@
             <ul>
                 <li id="userinfo"></li>
                 <li class="line">|</li>
-                <li>我的订单</li>
+                <li><a href="{:U('OrderInfo/index')}">我的订单</a></li>
                 <li class="line">|</li>
                 <li>客户服务</li>
 
@@ -46,10 +80,13 @@
         <div class="search fl">
             <div class="search_form">
                 <div class="form_left fl"></div>
-                <form action="" name="serarch" method="get" class="fl">
-                    <input type="text" class="txt" value="请输入商品关键字"/><input type="submit" class="btn" value="搜索"/>
+                <form action="{:U('Search/search')}" name="serarch" method="get" class="fl">
+                    <input type="text" class="txt" name="keyword" value="{:I('get.keyword')}" id="seo" autocomplete="off"/><input type="submit" class="btn" value="搜索"/>
                 </form>
                 <div class="form_right fl"></div>
+                <ul id="shelper" class="hide" style="display: none;">
+
+                </ul>
             </div>
 
             <div style="clear:both;"></div>
@@ -79,7 +116,7 @@
                     <div class="uclist mt10">
                         <ul class="list1 fl">
                             <li><a href="">用户信息></a></li>
-                            <li><a href="">我的订单></a></li>
+                            <li><a href="{:U('OrderInfo/index')}">我的订单></a></li>
                             <li><a href="{:U('Member/locationIndex')}">收货地址></a></li>
                             <li><a href="">我的收藏></a></li>
                         </ul>
@@ -127,7 +164,7 @@
     <div style="clear:both;"></div>
 
     <!-- 导航条部分 start -->
-    <div class="nav w1210 bc mt10">
+    <div class="nav w1210 bc mt10" style="z-index: auto">
         <!--  商品分类部分 start-->
         <div class="category fl <if condition='!$show_category'>cat1</if>"> <!-- 非首页，需要添加cat1类 -->
             <div class="cat_hd <if condition='!$show_category'>off</if>">  <!-- 注意，首页在此div上只需要添加cat_hd类，非首页，默认收缩分类时添加上off类，鼠标滑过时展开菜单则将off类换成on类 -->
@@ -251,6 +288,54 @@
            $('#userinfo').html(html1);
            $('#usertips').html(html2);
        });
+   });
+
+   var url = '{:U("Search/spinx")}';
+   $('#seo').keyup(function () {
+       var keyword = $('#seo').val();
+       var length = $('#seo').val().length;
+       if(length<=0){
+           $('#shelper').attr('style','display:none')
+       }
+       if(keyword !="" ){
+           $.getJSON(url,{keyword:keyword},function (data) {
+               var url = '{:U("Search/search")}?keyword='+keyword;
+               var html='';
+               if(data === false){
+                   $('#shelper').html("");
+                   return;
+               }
+               $(data).each(function (i,v) {
+                   html+="<a href='"+url+"'>";
+                   html+='<li id="d_0" suggest-pos="1.def.0" title="'+v.name+'" >';
+                   html+='<div class="search-item">'+v.name+'</div>';
+                   html+='<div class="search-count">库存'+v.stock+'个商品</div>';
+                   html+='</li></a>';
+               })
+               html+='<li class="close"><a href="javascropt:;" onclick="closeseo">关闭</a></li>';
+               if(data){
+                   $('#shelper').attr('style','display:block')
+                   $('#shelper').html(html)
+               }
+           })
+       }
+   });
+   $('#seo').blur(function () {
+       $('#shelper').attr('style','display:none')
+   });
+   $('#seo').focus(function () {
+       $('#shelper').attr('style','display:block')
+   });
+   $('#shelper').mouseover(function () {
+       $('#seo').off('blur')
+   });
+   $('#shelper').mouseout(function () {
+       $('#seo').on('blur',function () {
+           $('#shelper').attr('style','display:none')
+       })
+   });
+   $("#so").click(function () {
+       location.href=url
    });
 </script>
 <block name="js"></block>

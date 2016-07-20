@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link href="__CSS__/bootstrap.min.css" rel="stylesheet">
+    <css href="__CSS__/page.css" />
+    <css href="__TREEGRID__/css/jquery.treegrid.css" />
+</head>
+<body>
+<div style="margin-left: 20px;width: 1000px;">
+    <h1>订单列表 </h1>
+    <table class="table table-striped table-bordered tree">
+        <tr>
+            <th>编号</th>
+            <th>收货人</th>
+            <th>收货地址</th>
+            <th>订单金额</th>
+            <th>配送方式</th>
+            <th>支付方式</th>
+            <th>创建时间</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        <foreach name="rows" item="row">
+            <tr>
+                <td align="center">{$row.id}</td>
+                <td align="center">{$row.name}</td>
+                <td align="center">{$row.province_name} {$row.city_name} {$row.area_name} {$row.detail_address}</td>
+                <td align="center">{$row.price}</td>
+                <td align="center">{$row.delivery_name}</td>
+                <td align="center">{$row.pay_type_name}</td>
+                <td align="center">{$row.inputtime|date="Y-m-d H:i:s",###}</td>
+                <td align="center">{$statuses[$row['status']]}</td>
+                <td align="center">
+                    <if condition='$row.status == 2'>
+                        <a href='{:U("send",["id"=>$row["id"]])}'>填写发货信息</a> |
+                    </if>
+                    <a href="{:U('edit',['id'=>$row['id']])}" title="编辑"><img src="__IMG__/icon_edit.gif" width="16" height="16" border="0" /></a>
+                    <a href="{:U('remove',['id'=>$row['id']])}" onclick="" title="删除"><img src="__IMG__/icon_trash.gif" width="16" height="16" border="0" /></a>
+                </td>
+            </tr>
+        </foreach>
+    </table>
+    <div class="page">
+        {$page_html}
+    </div>
+</div>
+<js href='__JS__/jquery.min.js'/>
+<js href='__TREEGRID__/js/jquery.treegrid.js'/>
+</body>
+</html>

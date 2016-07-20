@@ -12,12 +12,21 @@ namespace Home\Model;
 use Think\Model;
 
 class OrderInfoModel extends Model{
+    //订单状态
+    public $statuses = [
+        0=>'已取消',
+        1=>'待支付',
+        2=>'待发货',
+        3=>'待收货',
+        4=>'已完成',
+    ];
     /**
      * 1.创建订单
      * 2.保存基本信息
      * 3·保存订单详情
      * 4.保存发票信息
      * 5·清空购物车
+     * 6.扣除库存
      */
     public function addOrder(){
         //开启事务的支持
@@ -38,8 +47,38 @@ delivery_price');
         //获取订单金额
         $shoppingCarModel = D('ShoppingCar');
         $cart_info = $shoppingCarModel->getShoppingCarList();
+
+        //添加减库存代码
+        $cond['_logic'] = 'OR';
+        foreach($cart_info['goods_info_list'] as $key=>$value){
+            $cond[] = [
+                'id'=>$key,
+                'stock'=>['lt',$value['amount']],
+            ];
+        }
+        $goodsModel = M('Goods');
+        $not_stock_list = $goodsModel->where($cond)->select();
+        $error = '';
+        if($not_stock_list){
+            foreach($not_stock_list as $goods){
+                $error .= $goods['name'];
+            }
+            $this->error = $error.'库存不足';
+            $this->rollback();
+            return false;
+        }
+        //库存够人就减库存
+        foreach($cart_info['goods_info_list'] as $goods){
+            if($goodsModel->where(['id'=>$goods['id']])->setDec('stock',$goods['amount']) === false){
+                $this->error = '更新库存失败';
+                $this->rollback();
+                return false;
+            }
+        }
+
         $this->data['price'] = $cart_info['total_price'];
         $this->data['status']=1;
+        $this->data['inputtime']=NOW_TIME;
         if(($order_id=$this->add()) === false){
             $this->error = '保存订单基本信息失败';
             $this->rollback();
@@ -121,4 +160,23 @@ delivery_price');
         return true;
 
     }
+
+    //获取用户订单列表
+    public function getList(){
+        $userinfo = session('USERINFO');
+        $cond = [
+            'member_id'=>$userinfo['id'],
+        ];
+        $rows = $this->where($cond)->select();
+        $orderInfoItemModel = D('OrderInfoItem');
+        foreach($rows as $key=>$value){
+            $rows[$key]['goods_list'] = $orderInfoItemModel->field('goods_id,goods_name,logo')->where(['order_info_id'=>$value['id']])->select();
+        }
+        return $rows;
+    }
+    //根据id获取订单信息
+    public function getOrderInfoById($id){
+        return $this->find($id);
+    }
+
 }
